@@ -1,0 +1,11 @@
+2011-11-04 16:48:10,071 INFO timerFactory de.thecodex.test.Foobar - A simple log line
+2011-11-04 16:48:10,072 INFO timerFactory de.thecodex.test.Foobar - A simple log line
+2011-11-04 16:48:10,074 INFO timerFactory de.thecodex.test.Foobar - A simple log line
+2011-11-04 16:48:10,074 INFO timerFactory de.thecodex.test.Foobar - A simple log line
+2011-11-04 16:48:10,075 INFO timerFactory de.thecodex.test.Foobar - A simple log line
+2011-11-04 16:48:10,075 INFO timerFactory de.thecodex.test.Foobar - A simple log line
+2011-11-04 16:48:11,131 INFO TP-Processor38519 de.thecodex.test.Foobar - A simple log line
+2011-11-04 16:48:11,241 INFO TP-Processor38519 de.thecodex.test.Foobar - A simple log line
+2011-11-04 16:48:13,626 INFO TP-Processor38491 de.thecodex.test.Foobar - A simple log line
+2011-11-04 16:48:15,826 INFO TP-Processor20861 de.thecodex.test.Foobar - A simple log line
+

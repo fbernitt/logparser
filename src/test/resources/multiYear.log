@@ -1,0 +1,5 @@
+2009-11-04 16:48:10,071 INFO timerFactory de.thecodex.photoUpload.TemporaryPhotoClearanceTask - Clearing temporary photos...
+2010-11-04 16:48:10,072 INFO timerFactory de.thecodex.photoUpload.TemporaryPhotoClearanceTask - Tempoary photos cleared.
+2011-11-04 16:48:10,074 INFO timerFactory de.thecodex.StatusLogger - (RuntimeStatusBasicDataSource#getStatus): numActive/numIdle/maxActive 0/10/10 maxActiveTime: 16:48:10
+2012-11-04 16:48:10,074 INFO timerFactory de.thecodex.StatusLogger - (RuntimeStatusBasicDataSource#getStatus): numActive/numIdle/maxActive 0/10/10 maxActiveTime: 16:48:10
+
