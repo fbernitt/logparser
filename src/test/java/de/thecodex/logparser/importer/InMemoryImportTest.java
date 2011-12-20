@@ -1,6 +1,6 @@
 package de.thecodex.logparser.importer;
 
-import com.googlecode.flyway.core.Flyway;
+import de.thecodex.logparser.flyway.FlywayWrapper;
 import de.thecodex.logparser.log4j.Log4jLogEntry;
 import de.thecodex.logparser.log4j.Log4jLogParser;
 import de.thecodex.logparser.log4j.importer.Log4jLogEntryImporter;
@@ -29,7 +29,6 @@ public class InMemoryImportTest {
     public void setupInMemoryDB() throws ClassNotFoundException, SQLException {
         Class.forName("org.h2.Driver");
         String url = "jdbc:h2:mem:testdb";
-        String user = "test";
 
         this.connection = DriverManager.getConnection(url);
         JdbcDataSource ds = new JdbcDataSource();
@@ -39,10 +38,7 @@ public class InMemoryImportTest {
     }
 
     private void initAndMigrateFlyway(JdbcDataSource ds) {
-        Flyway flyway = new Flyway();
-        flyway.setDataSource(ds);
-        flyway.init();
-        flyway.migrate();
+        new FlywayWrapper(FlywayWrapper.SupportedDatabase.H2).initAndMigrate(ds);
     }
 
     @Test
