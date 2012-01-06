@@ -1,13 +1,13 @@
 package de.thecodex.logparser.importer;
 
 import de.thecodex.logparser.flyway.FlywayWrapper;
+import de.thecodex.logparser.flyway.SupportedDatabase;
 import de.thecodex.logparser.log4j.Log4jLogEntry;
 import de.thecodex.logparser.log4j.Log4jLogParser;
 import de.thecodex.logparser.log4j.importer.Log4jLogEntryImporter;
 import de.thecodex.logparser.origin.OriginHost;
 import de.thecodex.logparser.origin.OriginLogFile;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.postgresql.ds.PGSimpleDataSource;
 
@@ -21,7 +21,7 @@ import java.util.Properties;
 /**
  * Postgres import test.
  */
-@Ignore
+//@Ignore
 public class PostgresImportTest {
 
     private static final String DB_HOST = "foo";
@@ -43,7 +43,7 @@ public class PostgresImportTest {
     }
 
     private void cleanAndMigrateFlyway(DataSource ds) {
-        new FlywayWrapper(FlywayWrapper.SupportedDatabase.POSTGRES).cleanAndMigrate(ds);
+        new FlywayWrapper(SupportedDatabase.POSTGRES).cleanAndMigrate(ds);
     }
 
     @Test

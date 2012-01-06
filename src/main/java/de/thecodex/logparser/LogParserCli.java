@@ -15,13 +15,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
-/**
- * Created by IntelliJ IDEA.
- * User: folker
- * Date: 02.12.11
- * Time: 15:52
- * To change this template use File | Settings | File Templates.
- */
 public class LogParserCli implements Runnable {
 
     public static void main(String[] args) {
@@ -38,11 +31,11 @@ public class LogParserCli implements Runnable {
         return new DatabaseImporter<Log4jLogEntry>(createConnection(cmdLine), new Log4jLogEntryImporter());
     }
 
-    private Connection createConnection (CommandLine cmd) {
+    private Connection createConnection(CommandLine cmd) {
         String dbHost = cmd.getOptionValue("H");
         String dbUser = cmd.getOptionValue("U");
         String dbName = cmd.getOptionValue("D");
-        String url = "jdbc:postgresql://" + dbHost +  "/" + dbName;
+        String url = "jdbc:postgresql://" + dbHost + "/" + dbName;
 
         Properties props = new Properties();
         props.setProperty("user", dbUser);
@@ -53,7 +46,7 @@ public class LogParserCli implements Runnable {
         }
     }
 
-    private void migrateFlyway (CommandLine cmd) {
+    private void migrateFlyway(CommandLine cmd) {
         String dbHost = cmd.getOptionValue("H");
         String dbUser = cmd.getOptionValue("U");
         String dbName = cmd.getOptionValue("D");
@@ -105,7 +98,7 @@ public class LogParserCli implements Runnable {
         String localFolder = cmd.getOptionValue("r");
         FetchAndImport fai = new FetchAndImport(importer, localFolder);
 
-        for (String fileName :  cmd.getArgs()) {
+        for (String fileName : cmd.getArgs()) {
             fai.fetchAndImport(fileName);
         }
     }

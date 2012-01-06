@@ -1,6 +1,7 @@
 package de.thecodex.logparser.importer;
 
 import de.thecodex.logparser.flyway.FlywayWrapper;
+import de.thecodex.logparser.flyway.SupportedDatabase;
 import de.thecodex.logparser.log4j.Log4jLogEntry;
 import de.thecodex.logparser.log4j.Log4jLogParser;
 import de.thecodex.logparser.log4j.importer.Log4jLogEntryImporter;
@@ -38,7 +39,7 @@ public class InMemoryImportTest {
     }
 
     private void initAndMigrateFlyway(JdbcDataSource ds) {
-        new FlywayWrapper(FlywayWrapper.SupportedDatabase.H2).initAndMigrate(ds);
+        new FlywayWrapper(SupportedDatabase.H2).initAndMigrate(ds);
     }
 
     @Test
