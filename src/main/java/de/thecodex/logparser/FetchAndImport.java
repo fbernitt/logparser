@@ -23,11 +23,16 @@ public class FetchAndImport {
     private final String localFolder;
 
     private final DatabaseImporter<Log4jLogEntry> importer;
-    private final List<String> hostNames = Arrays.asList("127.0.0.1");
+    private final List<String> hostNames;
 
     public FetchAndImport(DatabaseImporter<Log4jLogEntry> importer, String localFolder) {
+        this(importer, localFolder, Arrays.asList("127.0.0.1"));
+    }
+
+    public FetchAndImport(DatabaseImporter<Log4jLogEntry> importer, String localFolder, List<String> hostNames) {
         this.importer = importer;
         this.localFolder = localFolder;
+        this.hostNames = hostNames;
 
         createLocalFolder();
     }

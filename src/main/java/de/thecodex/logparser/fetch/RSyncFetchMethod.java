@@ -16,7 +16,7 @@ public class RSyncFetchMethod implements FetchMethod {
     public void fetch(FileInfo fileInfo) {
         String cmd = "rsync -avz " + fileInfo.getHostName() + ":" + fileInfo.getRemoteFile() + " " + fileInfo.getLocalFile();
 
-        LOGGER.debug(cmd);
+        LOGGER.info(cmd);
 
         try {
             Process proc = Runtime.getRuntime().exec(cmd);

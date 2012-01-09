@@ -1,6 +1,9 @@
 package de.thecodex.logparser;
 
-import com.googlecode.flyway.core.Flyway;
+import de.thecodex.logparser.flyway.DBAccessFactory;
+import de.thecodex.logparser.flyway.FlywayWrapper;
+import de.thecodex.logparser.flyway.PostgresDBAccessFactory;
+import de.thecodex.logparser.flyway.SupportedDatabase;
 import de.thecodex.logparser.importer.DatabaseImporter;
 import de.thecodex.logparser.log4j.Log4jLogEntry;
 import de.thecodex.logparser.log4j.importer.Log4jLogEntryImporter;
@@ -8,59 +11,55 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
-import org.postgresql.ds.PGSimpleDataSource;
+import org.apache.log4j.Logger;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.Properties;
+import java.util.Arrays;
+import java.util.List;
 
 public class LogParserCli implements Runnable {
+
+    private static final Logger LOGGER = Logger.getLogger(LogParserCli.class);
 
     public static void main(String[] args) {
         new LogParserCli(args).run();
     }
 
     private final String[] args;
+    private String dbHost;
+    private String dbUser;
+    private String dbName;
+    private DBAccessFactory dbAccessFactory;
+    private SupportedDatabase dbType = SupportedDatabase.POSTGRES;
 
     public LogParserCli(String[] args) {
         this.args = args;
     }
 
-    private DatabaseImporter<Log4jLogEntry> createDBImporter(CommandLine cmdLine) {
-        return new DatabaseImporter<Log4jLogEntry>(createConnection(cmdLine), new Log4jLogEntryImporter());
+    private DatabaseImporter<Log4jLogEntry> createDBImporter() {
+        return new DatabaseImporter<Log4jLogEntry>(this.dbAccessFactory.createConnection(), new Log4jLogEntryImporter());
     }
 
-    private Connection createConnection(CommandLine cmd) {
-        String dbHost = cmd.getOptionValue("H");
-        String dbUser = cmd.getOptionValue("U");
-        String dbName = cmd.getOptionValue("D");
-        String url = "jdbc:postgresql://" + dbHost + "/" + dbName;
+    private void initDBFields(CommandLine cmd) {
+        this.dbHost = cmd.getOptionValue("H");
+        this.dbUser = cmd.getOptionValue("U");
+        this.dbName = cmd.getOptionValue("D");
+        String dbTypeId = cmd.getOptionValue("t");
 
-        Properties props = new Properties();
-        props.setProperty("user", dbUser);
-        try {
-            return DriverManager.getConnection(url, props);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        SupportedDatabase db = SupportedDatabase.valueOf(dbTypeId);
+        switch (db) {
+            case POSTGRES:
+                this.dbType = SupportedDatabase.POSTGRES;
+                this.dbAccessFactory = new PostgresDBAccessFactory(this.dbUser, this.dbHost, this.dbName);
+                break;
+
+            default:
+                throw new UnsupportedOperationException("Database type " + dbTypeId + " is not supported!");
         }
     }
 
     private void migrateFlyway(CommandLine cmd) {
-        String dbHost = cmd.getOptionValue("H");
-        String dbUser = cmd.getOptionValue("U");
-        String dbName = cmd.getOptionValue("D");
-
-        PGSimpleDataSource ds = new PGSimpleDataSource();
-        ds.setServerName(dbHost);
-        ds.setUser(dbUser);
-        ds.setDatabaseName(dbName);
-
-        Flyway flyway = new Flyway();
-
-        flyway.setDataSource(ds);
-        flyway.clean();
-        flyway.migrate();
+        FlywayWrapper flyway = new FlywayWrapper(this.dbType);
+        flyway.cleanAndMigrate(this.dbAccessFactory.createDataSource());
     }
 
     private static CommandLine parseCmdLine(String[] args, Options options) {
@@ -78,6 +77,7 @@ public class LogParserCli implements Runnable {
         options.addOption("H", true, "db host");
         options.addOption("U", true, "db user");
         options.addOption("D", true, "db name");
+        options.addOption("t", true, "db type (postgres, h2)");
         options.addOption("r", true, "local repository for logfiles");
         options.addOption("s", true, "server/host names");
         return options;
@@ -86,20 +86,33 @@ public class LogParserCli implements Runnable {
     public void run() {
         Options options = initCliOptions();
 
-        CommandLine cmd = parseCmdLine(args, options);
+        CommandLine cmd = parseCmdLine(this.args, options);
         if (cmd.hasOption("h")) {
             System.out.println("Show the help!");
             System.exit(1);
         }
+        initDBFields(cmd);
 
+        LOGGER.info("migrating flyway...");
         migrateFlyway(cmd);
 
-        DatabaseImporter<Log4jLogEntry> importer = createDBImporter(cmd);
-        String localFolder = cmd.getOptionValue("r");
-        FetchAndImport fai = new FetchAndImport(importer, localFolder);
+        FetchAndImport fai = createFetchAndImport(cmd);
 
         for (String fileName : cmd.getArgs()) {
+            LOGGER.info("Importing file " + fileName);
             fai.fetchAndImport(fileName);
+        }
+    }
+
+    private FetchAndImport createFetchAndImport(CommandLine cmd) {
+        DatabaseImporter<Log4jLogEntry> importer = createDBImporter();
+        String localFolder = cmd.getOptionValue("r");
+
+        if (cmd.hasOption("s")) {
+            List<String> hostNames = Arrays.asList(cmd.getOptionValue("s").split(","));
+            return new FetchAndImport(importer, localFolder, hostNames);
+        } else {
+            return new FetchAndImport(importer, localFolder);
         }
     }
 }

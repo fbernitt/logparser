@@ -8,6 +8,7 @@ import de.thecodex.logparser.log4j.importer.Log4jLogEntryImporter;
 import de.thecodex.logparser.origin.OriginHost;
 import de.thecodex.logparser.origin.OriginLogFile;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.postgresql.ds.PGSimpleDataSource;
 
@@ -21,7 +22,7 @@ import java.util.Properties;
 /**
  * Postgres import test.
  */
-//@Ignore
+@Ignore
 public class PostgresImportTest {
 
     private static final String DB_HOST = "foo";
