@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class LogParserCli implements Runnable {
 
@@ -77,9 +78,10 @@ public class LogParserCli implements Runnable {
         options.addOption("H", true, "db host");
         options.addOption("U", true, "db user");
         options.addOption("D", true, "db name");
-        options.addOption("t", true, "db type (postgres, h2)");
+        options.addOption("p", true, "first line pattern");
         options.addOption("r", true, "local repository for logfiles");
         options.addOption("s", true, "server/host names");
+        options.addOption("t", true, "db type (postgres, h2)");
         return options;
     }
 
@@ -107,12 +109,17 @@ public class LogParserCli implements Runnable {
     private FetchAndImport createFetchAndImport(CommandLine cmd) {
         DatabaseImporter<Log4jLogEntry> importer = createDBImporter();
         String localFolder = cmd.getOptionValue("r");
+        Pattern firstLinePattern = null;
+        if (cmd.hasOption("p")) {
+            firstLinePattern = Pattern.compile(cmd.getOptionValue("p"));
+            LOGGER.info("Using first line detection-pattern: " + cmd.getOptionValue("p"));
+        }
 
         if (cmd.hasOption("s")) {
             List<String> hostNames = Arrays.asList(cmd.getOptionValue("s").split(","));
-            return new FetchAndImport(importer, localFolder, hostNames);
+            return new FetchAndImport(importer, localFolder, hostNames, firstLinePattern);
         } else {
-            return new FetchAndImport(importer, localFolder);
+            return new FetchAndImport(importer, localFolder, firstLinePattern);
         }
     }
 }

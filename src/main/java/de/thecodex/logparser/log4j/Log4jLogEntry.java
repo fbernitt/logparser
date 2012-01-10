@@ -28,9 +28,11 @@ public class Log4jLogEntry {
     private final boolean exception;
     private final String ourFirstLine;
 
-
-
     public Log4jLogEntry(RawLogEntry rawEntry) {
+        this(rawEntry, FIRST_LINE_PATTERN);
+    }
+
+    public Log4jLogEntry(RawLogEntry rawEntry, Pattern firstLinePattern) {
         this.rawEntry = rawEntry;
 
         Matcher m = pattern.matcher(firstLine(rawEntry.getRawLogMessage()));
@@ -48,11 +50,11 @@ public class Log4jLogEntry {
         this.message = m.group(4);
         this.exception = detectException(rawEntry.getRawLogMessage());
         this.exceptionClass = detectExceptionClass(rawEntry.getRawLogMessage());
-        this.ourFirstLine = detectOurFirstLine(rawEntry.getRawLogMessage());
+        this.ourFirstLine = detectOurFirstLine(rawEntry.getRawLogMessage(), firstLinePattern);
     }
 
-    private String detectOurFirstLine(String msg) {
-        Matcher m = FIRST_LINE_PATTERN.matcher(msg);
+    private String detectOurFirstLine(String msg, Pattern firstLinePattern) {
+        Matcher m = firstLinePattern.matcher(msg);
         if (m.find()) {
             return m.group(1);
         } else {

@@ -13,6 +13,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
 
@@ -24,15 +25,21 @@ public class FetchAndImport {
 
     private final DatabaseImporter<Log4jLogEntry> importer;
     private final List<String> hostNames;
+    private final Pattern firstLinePattern;
 
     public FetchAndImport(DatabaseImporter<Log4jLogEntry> importer, String localFolder) {
-        this(importer, localFolder, Arrays.asList("127.0.0.1"));
+        this(importer, localFolder, Arrays.asList("127.0.0.1"), null);
     }
 
-    public FetchAndImport(DatabaseImporter<Log4jLogEntry> importer, String localFolder, List<String> hostNames) {
+    public FetchAndImport(DatabaseImporter<Log4jLogEntry> importer, String localFolder, Pattern firstLinePattern) {
+        this(importer, localFolder, Arrays.asList("127.0.0.1"), firstLinePattern);
+    }
+
+    public FetchAndImport(DatabaseImporter<Log4jLogEntry> importer, String localFolder, List<String> hostNames, Pattern firstLinePattern) {
         this.importer = importer;
         this.localFolder = localFolder;
         this.hostNames = hostNames;
+        this.firstLinePattern = firstLinePattern;
 
         createLocalFolder();
     }
@@ -48,7 +55,7 @@ public class FetchAndImport {
         for (FileInfo info : infos) {
             try {
                 LOGGER.info("Importing log " + info.getLocalFile() + " from host " + info.getHostName());
-                this.importer.importLogInBatchMode(new OriginLogFile(new OriginHost(info.getHostName(), "127.0.0.1"), info.getRemoteFile()), new Log4jLogParser(createInputStream(info)));
+                this.importer.importLogInBatchMode(new OriginLogFile(new OriginHost(info.getHostName(), "127.0.0.1"), info.getRemoteFile()), new Log4jLogParser(createInputStream(info), this.firstLinePattern));
             } catch (FileNotFoundException e) {
                 throw new RuntimeException(e);
             } catch (IOException e) {
